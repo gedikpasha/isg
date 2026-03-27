@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurkNet İSG Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f2f0f7; color: #2d1a5e; padding: 20px; }
+.sec-header { display: flex; align-items: center; gap: 10px; margin: 28px 0 12px; }
+.sec-line { flex: 1; height: 1px; background: #e0daea; }
+.sec-title { font-size: 11px; font-weight: 700; color: #9b8fc0; text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
+.card { background: #fff; border-radius: 12px; padding: 4px 16px; margin-bottom: 10px; box-shadow: 0 1px 6px rgba(74,31,168,0.07); }
+.card-pad { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 6px rgba(74,31,168,0.07); }
+.card-title { font-size: 12px; font-weight: 600; color: #2d1a5e; margin-bottom: 14px; }
+.crow { display: flex; align-items: center; justify-content: space-between; padding: 11px 0; border-bottom: 0.5px solid #f0ecfa; gap: 10px; }
+.crow:last-child { border-bottom: none; }
+.cleft { flex: 1; }
+.cn { font-size: 13px; color: #2d1a5e; font-weight: 500; }
+.cm { font-size: 11px; color: #9b8fc0; margin-top: 2px; }
+.chip { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; }
+.cg { background: #EAF3DE; color: #27500A; }
+.ca { background: #FAEEDA; color: #633806; }
+.cr { background: #FCEBEB; color: #791F1F; }
+.cgr { background: #f5f5f5; color: #aaa; font-style: italic; }
+.kpi3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 10px; }
+.kpi { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 6px rgba(74,31,168,0.07); }
+.kl { font-size: 10px; color: #9b8fc0; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; font-weight: 600; }
+.kv { font-size: 30px; font-weight: 700; color: #2d1a5e; line-height: 1; }
+.ks { font-size: 11px; margin-top: 5px; }
+.ks-g { color: #0F6E56; } .ks-a { color: #854F0B; } .ks-r { color: #A32D2D; }
+.lok-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 10px; }
+.lok-card { background: #fff; border-radius: 12px; padding: 18px 16px; position: relative; box-shadow: 0 1px 6px rgba(74,31,168,0.07); }
+.lok-city { font-size: 11px; font-weight: 700; color: #9b8fc0; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.lok-score { font-size: 44px; font-weight: 700; line-height: 1; margin-bottom: 10px; }
+.lok-bar-bg { height: 6px; background: #f0ecfa; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.lok-bar-fill { height: 100%; border-radius: 3px; }
+.lok-meta { font-size: 11px; color: #9b8fc0; }
+.lok-trend { position: absolute; top: 16px; right: 16px; font-size: 12px; font-weight: 700; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.brow { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.brow:last-child { margin-bottom: 0; }
+.bl { font-size: 12px; color: #7c6fa0; width: 130px; flex-shrink: 0; }
+.bb { flex: 1; height: 8px; background: #f0ecfa; border-radius: 4px; overflow: hidden; }
+.bf { height: 100%; border-radius: 4px; }
+.bp { font-size: 12px; color: #2d1a5e; width: 34px; text-align: right; flex-shrink: 0; font-weight: 600; }
+.alert { border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 10px; align-items: flex-start; }
+.al-r { background: #FCEBEB; border-left: 3px solid #E24B4A; }
+.al-a { background: #FAEEDA; border-left: 3px solid #EF9F27; }
+.al-g { background: #EAF3DE; border-left: 3px solid #1D9E75; }
+.al-b { background: #E6F1FB; border-left: 3px solid #378ADD; }
+.ai { font-size: 16px; flex-shrink: 0; }
+.ab { flex: 1; }
+.at { font-size: 13px; font-weight: 600; color: #2d1a5e; }
+.as { font-size: 11px; color: #7c6fa0; margin-top: 3px; line-height: 1.5; }
+.abtn { font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; margin-top: 8px; display: inline-block; color: #fff; }
+.hero { background: linear-gradient(135deg,#4a1fa8,#7b3fe8); border-radius: 12px; padding: 16px 18px; margin-bottom: 10px; box-shadow: 0 2px 12px rgba(74,31,168,0.2); }
+.htop { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.hav { width: 50px; height: 50px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: #4a1fa8; flex-shrink: 0; }
+.hname { font-size: 16px; font-weight: 600; color: #fff; }
+.hdept { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 3px; }
+.rchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rchip { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: rgba(255,255,255,0.18); color: #fff; }
+.val-row { padding: 11px 0; border-bottom: 0.5px solid #f0ecfa; }
+.val-row:last-child { border-bottom: none; }
+.val-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.val-name { font-size: 13px; color: #2d1a5e; font-weight: 500; }
+.val-date { font-size: 11px; color: #9b8fc0; }
+.val-bar-bg { height: 7px; background: #f0ecfa; border-radius: 4px; overflow: hidden; margin-bottom: 4px; }
+.val-bar-fill { height: 100%; border-radius: 4px; }
+.val-bottom { display: flex; justify-content: space-between; }
+.val-dur { font-size: 11px; color: #9b8fc0; }
+.pbar-wrap { margin-bottom: 12px; }
+.pbar-head { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.pbar-lbl { font-size: 12px; color: #2d1a5e; font-weight: 500; }
+.pbar-pct { font-size: 12px; font-weight: 700; color: #4a1fa8; }
+.pbar-bg { height: 8px; background: #f0ecfa; border-radius: 4px; overflow: hidden; }
+.pbar-fill { height: 100%; border-radius: 4px; }
+.per-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+.per-tab { font-size: 11px; padding: 5px 14px; border-radius: 20px; border: 0.5px solid #d0c8e8; background: #fff; color: #4a1fa8; cursor: pointer; font-weight: 500; }
+.per-tab.active { background: #4a1fa8; color: #fff; }
+.ytabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.ytab { font-size: 12px; padding: 6px 16px; border-radius: 20px; border: 0.5px solid #d0c8e8; background: #fff; color: #4a1fa8; cursor: pointer; font-weight: 500; }
+.ytab.active { background: #4a1fa8; color: #fff; }
+.doc-link { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 0.5px solid #f0ecfa; }
+.doc-link:last-child { border-bottom: none; }
+.doc-ico { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.doc-info { flex: 1; }
+.doc-name { font-size: 13px; color: #2d1a5e; font-weight: 500; }
+.doc-meta { font-size: 11px; color: #9b8fc0; }
+.doc-btn { font-size: 11px; padding: 5px 14px; border-radius: 6px; border: 0.5px solid #d0c8e8; background: #f7f4fd; color: #4a1fa8; cursor: pointer; font-weight: 500; }
+.doc-btn.miss { background: #FCEBEB; color: #A32D2D; border-color: #E24B4A; }
+@media (max-width: 640px) { .kpi3,.lok-grid,.grid2 { grid-template-columns: 1fr; } body { padding: 12px; } }
+</style>
+</head>
+<body>
+
+<!-- GENEL BAKIŞ -->
+<div class="sec-header"><div class="sec-title">Genel Bakış</div><div class="sec-line"></div></div>
+<div class="kpi3">
+  <div class="kpi"><div class="kl">Şirket Geneli İSG Skoru</div><div class="kv" style="color:#854F0B;">74</div><div class="ks ks-a">▲ Geçen ay: 71</div></div>
+  <div class="kpi"><div class="kl">Eğitim Tamamlama</div><div class="kv">87<span style="font-size:16px;color:#9b8fc0;">%</span></div><div class="ks ks-a">▲ Geçen ay: %83</div></div>
+  <div class="kpi"><div class="kl">Sağlık Raporu Tamamlama</div><div class="kv">71<span style="font-size:16px;color:#9b8fc0;">%</span></div><div class="ks ks-r">▼ 29 kişi eksik</div></div>
+</div>
+
+<div class="sec-header"><div class="sec-title">Lokasyon Bazlı İSG Skoru</div><div class="sec-line"></div></div>
+<div class="lok-grid">
+  <div class="lok-card"><div class="lok-trend" style="color:#0F6E56;">▲ +3</div><div class="lok-city">İstanbul Ofis</div><div class="lok-score" style="color:#0F6E56;">86</div><div class="lok-bar-bg"><div class="lok-bar-fill" style="width:86%;background:#1D9E75;"></div></div><div class="lok-meta">312 çalışan · İyi</div></div>
+  <div class="lok-card"><div class="lok-trend" style="color:#854F0B;">▲ +1</div><div class="lok-city">Ankara Ofis</div><div class="lok-score" style="color:#854F0B;">72</div><div class="lok-bar-bg"><div class="lok-bar-fill" style="width:72%;background:#EF9F27;"></div></div><div class="lok-meta">88 çalışan · İzlemede</div></div>
+  <div class="lok-card"><div class="lok-trend" style="color:#A32D2D;">▼ -2</div><div class="lok-city">İzmir Ofis</div><div class="lok-score" style="color:#A32D2D;">58</div><div class="lok-bar-bg"><div class="lok-bar-fill" style="width:58%;background:#E24B4A;"></div></div><div class="lok-meta">54 çalışan · Kritik</div></div>
+</div>
+
+<div class="sec-header"><div class="sec-title">Departman Bazlı Tamamlama Oranları</div><div class="sec-line"></div></div>
+<div class="grid2">
+  <div class="card-pad">
+    <div class="card-title">Eğitim tamamlama</div>
+    <div class="brow"><span class="bl">C&B</span><div class="bb"><div class="bf" style="width:94%;background:#6b35c9;"></div></div><span class="bp">94%</span></div>
+    <div class="brow"><span class="bl">Veri Merkezi</span><div class="bb"><div class="bf" style="width:91%;background:#6b35c9;"></div></div><span class="bp">91%</span></div>
+    <div class="brow"><span class="bl">Teknoloji</span><div class="bb"><div class="bf" style="width:88%;background:#6b35c9;"></div></div><span class="bp">88%</span></div>
+    <div class="brow"><span class="bl">Saha Ops.</span><div class="bb"><div class="bf" style="width:85%;background:#EF9F27;"></div></div><span class="bp">85%</span></div>
+    <div class="brow"><span class="bl">Net Uzman</span><div class="bb"><div class="bf" style="width:82%;background:#EF9F27;"></div></div><span class="bp">82%</span></div>
+    <div class="brow"><span class="bl">People & Culture</span><div class="bb"><div class="bf" style="width:79%;background:#EF9F27;"></div></div><span class="bp">79%</span></div>
+    <div class="brow"><span class="bl">Rollout Altyapı</span><div class="bb"><div class="bf" style="width:76%;background:#EF9F27;"></div></div><span class="bp">76%</span></div>
+    <div class="brow"><span class="bl">Müşteri Hiz.</span><div class="bb"><div class="bf" style="width:70%;background:#E24B4A;"></div></div><span class="bp">70%</span></div>
+  </div>
+  <div class="card-pad">
+    <div class="card-title">Sağlık raporu tamamlama</div>
+    <div class="brow"><span class="bl">C&B</span><div class="bb"><div class="bf" style="width:90%;background:#6b35c9;"></div></div><span class="bp">90%</span></div>
+    <div class="brow"><span class="bl">Veri Merkezi</span><div class="bb"><div class="bf" style="width:88%;background:#6b35c9;"></div></div><span class="bp">88%</span></div>
+    <div class="brow"><span class="bl">Teknoloji</span><div class="bb"><div class="bf" style="width:82%;background:#6b35c9;"></div></div><span class="bp">82%</span></div>
+    <div class="brow"><span class="bl">Saha Ops.</span><div class="bb"><div class="bf" style="width:78%;background:#EF9F27;"></div></div><span class="bp">78%</span></div>
+    <div class="brow"><span class="bl">Net Uzman</span><div class="bb"><div class="bf" style="width:72%;background:#EF9F27;"></div></div><span class="bp">72%</span></div>
+    <div class="brow"><span class="bl">People & Culture</span><div class="bb"><div class="bf" style="width:65%;background:#EF9F27;"></div></div><span class="bp">65%</span></div>
+    <div class="brow"><span class="bl">Rollout Altyapı</span><div class="bb"><div class="bf" style="width:60%;background:#EF9F27;"></div></div><span class="bp">60%</span></div>
+    <div class="brow"><span class="bl">Müşteri Hiz.</span><div class="bb"><div class="bf" style="width:45%;background:#E24B4A;"></div></div><span class="bp">45%</span></div>
+  </div>
+</div>
+<div class="card-pad"><div class="card-title">Aylık kaza & ramak kala trendi</div><div style="position:relative;width:100%;height:140px;"><canvas id="trendC"></canvas></div></div>
+
+<!-- KİŞİSEL SAYFAM -->
+<div class="sec-header" style="margin-top:32px;"><div class="sec-title">Kişisel Sayfam</div><div class="sec-line"></div></div>
+<div class="per-tabs">
+  <button class="per-tab" onclick="setPer('tugrul',this)">Tuğrul — C&B</button>
+  <button class="per-tab active" onclick="setPer('esra',this)">Esra — People & Culture</button>
+  <button class="per-tab" onclick="setPer('halim',this)">Halim — Rollout + Kurtarma</button>
+  <button class="per-tab" onclick="setPer('hande',this)">Hande — İlkyardımcı</button>
+</div>
+<div id="kisiselContent"></div>
+
+<!-- YÜKLENİCİ -->
+<div class="sec-header" style="margin-top:32px;"><div class="sec-title">Yüklenici Puanları</div><div class="sec-line"></div></div>
+<div class="kpi3">
+  <div class="kpi"><div class="kl">Denetlenen Firma</div><div class="kv">8</div><div class="ks" style="color:#9b8fc0;">bu dönem</div></div>
+  <div class="kpi"><div class="kl">Ort. İSG Puanı</div><div class="kv" style="color:#854F0B;">74</div><div class="ks ks-a">▲ Geçen ay: 71</div></div>
+  <div class="kpi"><div class="kl">Kritik Firma</div><div class="kv" style="color:#A32D2D;">1</div><div class="ks ks-r">acil aksiyon</div></div>
+</div>
+<div class="ytabs">
+  <button class="ytab active" onclick="showYTab('ozet',this)">Özet</button>
+  <button class="ytab" onclick="showYTab('ocak',this)">Ocak</button>
+  <button class="ytab" onclick="showYTab('subat',this)">Şubat</button>
+  <button class="ytab" onclick="showYTab('mart',this)">Mart</button>
+</div>
+<div class="card" id="yukContent"></div>
+<div class="card-pad"><div class="card-title">Puan gelişimi</div><div style="position:relative;width:100%;height:140px;"><canvas id="yukC"></canvas></div></div>
+
+<!-- İSG UZMAN PANELİ -->
+<div class="sec-header" style="margin-top:32px;"><div class="sec-title">İSG Uzman Paneli</div><div class="sec-line"></div></div>
+<div class="alert al-b" style="border-radius:12px;margin-bottom:12px;"><span class="ai">🔒</span><div class="ab"><div class="at">Sadece İSG Uzmanı görür</div><div class="as">Bu bölüm çalışanlara görünmez.</div></div></div>
+<div class="kpi3">
+  <div class="kpi"><div class="kl">Eğitim Tamamlayan</div><div class="kv" style="color:#0F6E56;">174</div><div class="ks ks-g">%87 oran</div></div>
+  <div class="kpi"><div class="kl">Sağlık Raporu Eksik</div><div class="kv" style="color:#A32D2D;">58</div><div class="ks ks-r">acil takip</div></div>
+  <div class="kpi"><div class="kl">Açık Aksiyon</div><div class="kv" style="color:#854F0B;">14</div><div class="ks ks-a">4 gecikmiş</div></div>
+</div>
+<div class="card">
+  <div class="crow"><div style="display:flex;align-items:center;gap:12px;flex:1;"><div style="width:34px;height:34px;border-radius:50%;background:#ede8f9;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#4a1fa8;flex-shrink:0;">TA</div><div class="cleft"><div class="cn">Tuğrul Aydın</div><div class="cm">C&B · Ofis</div></div></div><div style="display:flex;gap:8px;align-items:center;"><span style="font-size:16px;font-weight:700;color:#0F6E56;">100</span><span class="chip cg">İyi</span><span class="chip cg">Sağlık ✓</span></div></div>
+  <div class="crow"><div style="display:flex;align-items:center;gap:12px;flex:1;"><div style="width:34px;height:34px;border-radius:50%;background:#FAEEDA;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#633806;flex-shrink:0;">EE</div><div class="cleft"><div class="cn">Esra Eseroğlu</div><div class="cm">People & Culture · Araç + Temsilci</div></div></div><div style="display:flex;gap:8px;align-items:center;"><span style="font-size:16px;font-weight:700;color:#854F0B;">50</span><span class="chip ca">Eksik</span><span class="chip cr">Sağlık ✗</span></div></div>
+  <div class="crow"><div style="display:flex;align-items:center;gap:12px;flex:1;"><div style="width:34px;height:34px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#27500A;flex-shrink:0;">HA</div><div class="cleft"><div class="cn">Halim Atalay</div><div class="cm">Rollout Altyapı · Saha + Araç + Kurtarma</div></div></div><div style="display:flex;gap:8px;align-items:center;"><span style="font-size:16px;font-weight:700;color:#854F0B;">80</span><span class="chip ca">Eksik</span><span class="chip cg">Sağlık ✓</span></div></div>
+  <div class="crow"><div style="display:flex;align-items:center;gap:12px;flex:1;"><div style="width:34px;height:34px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#185FA5;flex-shrink:0;">HC</div><div class="cleft"><div class="cn">Hande Coşkun</div><div class="cm">People & Culture · İlkyardımcı</div></div></div><div style="display:flex;gap:8px;align-items:center;"><span style="font-size:16px;font-weight:700;color:#0F6E56;">100</span><span class="chip cg">İyi</span><span class="chip cr">Sağlık ✗</span></div></div>
+</div>
+<div style="height:32px;"></div>
+
+<script>
+const gc='rgba(0,0,0,0.06)',tc='#888',today=new Date('2025-03-26');
+
+new Chart(document.getElementById('trendC'),{type:'line',data:{labels:['Eyl','Eki','Kas','Ara','Oca','Şub','Mar'],datasets:[{label:'Kaza',data:[2,3,1,2,1,2,1],borderColor:'#6b35c9',backgroundColor:'rgba(107,53,201,0.08)',fill:true,tension:0.4,pointRadius:4,borderWidth:2},{label:'Ramak Kala',data:[4,3,5,2,3,2,3],borderColor:'#EF9F27',fill:false,tension:0.4,pointRadius:4,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},color:tc,boxWidth:10,padding:10}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:10}}},y:{beginAtZero:true,grid:{color:gc},ticks:{color:tc,font:{size:11},stepSize:2}}}}});
+new Chart(document.getElementById('yukC'),{type:'line',data:{labels:['Oca','Şub','Mar'],datasets:[{label:'ABC Teknik',data:[88,91,94],borderColor:'#1D9E75',tension:0.4,pointRadius:4,borderWidth:2,fill:false},{label:'Güven Elektrik',data:[80,76,74],borderColor:'#EF9F27',tension:0.4,pointRadius:4,borderWidth:2,fill:false},{label:'Tepe Yapı',data:[61,58,52],borderColor:'#E24B4A',tension:0.4,pointRadius:4,borderWidth:2,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},color:tc,boxWidth:10,padding:10}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:10}}},y:{min:40,max:100,grid:{color:gc},ticks:{color:tc,font:{size:11},stepSize:20}}}}});
+
+const yukData={ozet:[{n:'ABC Teknik',cat:'Arıza',s:94,c:'cg',l:'İyi'},{n:'Delta İnşaat',cat:'Rollout',s:89,c:'cg',l:'İyi'},{n:'Güven Elektrik',cat:'Kurulum',s:74,c:'ca',l:'İzlemede'},{n:'Kaya Servis',cat:'Bakım',s:68,c:'ca',l:'İzlemede'},{n:'Tepe Yapı',cat:'İnşaat',s:52,c:'cr',l:'Kritik'}],ocak:[{n:'ABC Teknik',cat:'Arıza',s:88,c:'cg',l:'İyi'},{n:'Delta İnşaat',cat:'Rollout',s:85,c:'cg',l:'İyi'},{n:'Güven Elektrik',cat:'Kurulum',s:80,c:'cg',l:'İyi'},{n:'Kaya Servis',cat:'Bakım',s:70,c:'ca',l:'İzlemede'},{n:'Tepe Yapı',cat:'İnşaat',s:61,c:'ca',l:'İzlemede'}],subat:[{n:'ABC Teknik',cat:'Arıza',s:91,c:'cg',l:'İyi'},{n:'Delta İnşaat',cat:'Rollout',s:87,c:'cg',l:'İyi'},{n:'Güven Elektrik',cat:'Kurulum',s:76,c:'ca',l:'İzlemede'},{n:'Kaya Servis',cat:'Bakım',s:65,c:'ca',l:'İzlemede'},{n:'Tepe Yapı',cat:'İnşaat',s:58,c:'cr',l:'Kritik'}],mart:[{n:'ABC Teknik',cat:'Arıza',s:94,c:'cg',l:'İyi'},{n:'Delta İnşaat',cat:'Rollout',s:89,c:'cg',l:'İyi'},{n:'Güven Elektrik',cat:'Kurulum',s:74,c:'ca',l:'İzlemede'},{n:'Kaya Servis',cat:'Bakım',s:68,c:'ca',l:'İzlemede'},{n:'Tepe Yapı',cat:'İnşaat',s:52,c:'cr',l:'Kritik'}]};
+function showYTab(key,el){document.querySelectorAll('.ytab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('yukContent').innerHTML=yukData[key].map(f=>`<div class="crow"><div class="cleft"><div class="cn">${f.n}</div><div class="cm">${f.cat}</div></div><div style="display:flex;gap:10px;align-items:center;"><span style="font-size:17px;font-weight:700;color:${f.c==='cg'?'#0F6E56':f.c==='ca'?'#854F0B':'#A32D2D'};">${f.s}</span><span class="chip ${f.c}">${f.l}</span></div></div>`).join('');}
+showYTab('ozet',document.querySelector('.ytab'));
+
+function daysLeft(d){return Math.round((new Date(d)-today)/864e5);}
+function pct(d,t){return Math.max(0,Math.min(100,Math.round(d/t*100)));}
+function bCol(p){return p>60?'#6b35c9':p>30?'#EF9F27':'#E24B4A';}
+function sCol(v){return v>=85?'#0F6E56':v>=65?'#854F0B':'#A32D2D';}
+function leftLbl(d,p){if(d<0)return`<span style="color:#A32D2D;font-weight:600;">${Math.abs(d)} gün geçti</span>`;if(p<30)return`<span style="color:#E24B4A;font-weight:600;">${d} gün kaldı</span>`;if(p<60)return`<span style="color:#EF9F27;font-weight:600;">${d} gün kaldı</span>`;return`<span style="color:#0F6E56;">${d} gün kaldı</span>`;}
+
+const PEOPLE={
+  tugrul:{av:'TA',name:'Tuğrul Aydın',dept:'Compensation & Benefits · Ofis',roles:['Ofis Çalışanı'],alerts:[{t:'g',i:'✅',title:'Tüm zorunlu eğitimler tamamlandı',sub:'Profilinizle ilgili tüm eğitimler güncel.',btn:null}],eg:[{n:'Temel İSG',m:'Ofis: 3 yıl',z:true,end:'2026-09-01',tot:1095},{n:'Yangın Güvenlik',m:'3 yıl',z:true,end:'2027-01-15',tot:1095},{n:'Güvenli Sürüş',m:'Araç kullananlar',z:false},{n:'Yüksekte Çalışma',m:'Saha teknik',z:false},{n:'İlk Yardım',m:'İlkyardımcılara özel',z:false}],docs:[{i:'📋',bg:'#EAF3DE',n:'Sağlık Raporu 2025',m:'Geçerli',miss:false},{i:'📝',bg:'#EAF3DE',n:'İSG Taahhüt Formu',m:'2025',miss:false}]},
+  esra:{av:'EE',name:'Esra Eseroğlu',dept:'People & Culture · Araç + Çalışan Temsilcisi',roles:['Araç Kullanan','Çalışan Temsilcisi'],alerts:[{t:'r',i:'🚗',title:'Güvenli Sürüş eğitimi eksik',sub:'Araç kullandığınız için zorunludur.',btn:'Eğitim Talep Et',bc:'#E24B4A'},{t:'a',i:'👥',title:'Çalışan Temsilcisi eğitimi tamamlanmadı',sub:'Temsilci rolünüz nedeniyle zorunludur.',btn:'Eğitim Talep Et',bc:'#EF9F27'}],eg:[{n:'Temel İSG',m:'Ofis: 3 yıl',z:true,end:'2026-06-10',tot:1095},{n:'Yangın Güvenlik',m:'3 yıl',z:true,end:'2027-02-20',tot:1095},{n:'Güvenli Sürüş',m:'Araç · 2 yıl',z:true,end:null,tot:730},{n:'Çalışan Temsilcisi Eğt.',m:'Temsilci · 3 yıl',z:true,end:null,tot:1095},{n:'Yüksekte Çalışma',m:'Saha teknik',z:false},{n:'İlk Yardım',m:'İlkyardımcılara özel',z:false}],docs:[{i:'📋',bg:'#FCEBEB',n:'Sağlık Raporu',m:'Eksik',miss:true},{i:'📝',bg:'#EAF3DE',n:'İSG Taahhüt Formu',m:'2025',miss:false}]},
+  halim:{av:'HA',name:'Halim Atalay',dept:'Rollout Altyapı · Saha + Araç + Kurtarma',roles:['Saha / Teknik','Araç Kullanan','Kurtarma Ekibi'],alerts:[{t:'a',i:'🏔',title:'Yüksekte Çalışma sertifikası 45 günde doluyor',sub:'Saha çalışanları için zorunludur. Bitiş: 10.05.2025',btn:'Yenileme Talep Et',bc:'#EF9F27'}],eg:[{n:'Temel İSG',m:'Saha: 1 yıl',z:true,end:'2025-11-15',tot:365},{n:'Yangın Güvenlik',m:'3 yıl',z:true,end:'2026-08-20',tot:1095},{n:'Yüksekte Çalışma',m:'Saha · 1 yıl',z:true,end:'2025-05-10',tot:365},{n:'Güvenli Sürüş',m:'Araç · 2 yıl',z:true,end:'2026-03-01',tot:730},{n:'Kurtarma Eğitimi',m:'Kurtarma · 2 yıl',z:true,end:'2026-10-05',tot:730},{n:'İlk Yardım',m:'İlkyardımcılara özel',z:false}],docs:[{i:'📋',bg:'#EAF3DE',n:'Sağlık Raporu 2025',m:'Geçerli',miss:false},{i:'🏅',bg:'#EAF3DE',n:'Yüksekte Çalışma Sert.',m:"2025'e kadar",miss:false},{i:'🚗',bg:'#EAF3DE',n:'Sürücü Belgesi',m:'Mevcut',miss:false}]},
+  hande:{av:'HC',name:'Hande Coşkun',dept:'People & Culture · İlkyardımcı',roles:['İlkyardımcı'],alerts:[{t:'g',i:'✅',title:'Tüm zorunlu eğitimler güncel',sub:'İlkyardımcı rolünüz dahil tüm eğitimleriniz tamamlandı.',btn:null}],eg:[{n:'Temel İSG',m:'Ofis: 3 yıl',z:true,end:'2026-04-12',tot:1095},{n:'Yangın Güvenlik',m:'3 yıl',z:true,end:'2027-01-08',tot:1095},{n:'İlk Yardım',m:'İlkyardımcı · 3 yıl',z:true,end:'2026-09-22',tot:1095},{n:'Güvenli Sürüş',m:'Araç kullananlar',z:false},{n:'Yüksekte Çalışma',m:'Saha teknik',z:false}],docs:[{i:'📋',bg:'#EAF3DE',n:'Sağlık Raporu 2025',m:'Geçerli',miss:false},{i:'🏥',bg:'#EAF3DE',n:'İlkyardım Sertifikası',m:"2026'ya kadar",miss:false}]}
+};
+
+function setPer(key,el){document.querySelectorAll('.per-tab').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderPer(PEOPLE[key]);}
+function calcScore(p){const z=p.eg.filter(e=>e.z);return Math.round(z.filter(e=>e.end).length/z.length*100);}
+function renderPer(p){
+  const score=calcScore(p),sc=sCol(score);
+  const tam=p.eg.filter(e=>e.z&&e.end).length,top=p.eg.filter(e=>e.z).length,pp=Math.round(tam/top*100);
+  const bc2=pp>=85?'#6b35c9':pp>=65?'#EF9F27':'#E24B4A';
+  const roleChips=p.roles.map(r=>`<span class="rchip">${r}</span>`).join('');
+  const alH=p.alerts.map(a=>`<div class="alert al-${a.t}"><span class="ai">${a.i}</span><div class="ab"><div class="at">${a.title}</div><div class="as">${a.sub}</div>${a.btn?`<button class="abtn" style="background:${a.bc};">${a.btn}</button>`:''}</div></div>`).join('');
+  const zorHtml=p.eg.filter(e=>e.z).map(e=>{
+    if(!e.end)return`<div class="val-row"><div class="val-top"><span class="val-name">${e.n}</span><span class="chip cr">Alınmamış</span></div><div style="font-size:11px;color:#9b8fc0;margin-top:3px;">${e.m}</div></div>`;
+    const dl=daysLeft(e.end),pc2=pct(dl,e.tot),ef=new Date(e.end).toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    return`<div class="val-row"><div class="val-top"><span class="val-name">${e.n}</span><span class="val-date">Bitiş: ${ef}</span></div><div class="val-bar-bg"><div class="val-bar-fill" style="width:${pc2}%;background:${bCol(pc2)};"></div></div><div class="val-bottom"><span>${leftLbl(dl,pc2)}</span><span class="val-dur">${e.m}</span></div></div>`;
+  }).join('');
+  const ilgHtml=p.eg.filter(e=>!e.z).map(e=>`<div class="crow"><div class="cleft"><div class="cn" style="color:#ccc;">${e.n}</div><div class="cm">${e.m}</div></div><span class="chip cgr">Gerekli değil</span></div>`).join('');
+  const docHtml=p.docs.map(d=>`<div class="doc-link"><div class="doc-ico" style="background:${d.bg};">${d.i}</div><div class="doc-info"><div class="doc-name">${d.n}</div><div class="doc-meta">${d.m}</div></div><button class="doc-btn${d.miss?' miss':''}">${d.miss?'Talep Et':'Görüntüle'}</button></div>`).join('');
+  document.getElementById('kisiselContent').innerHTML=`
+    <div class="hero"><div class="htop"><div class="hav">${p.av}</div><div style="flex:1;"><div class="hname">${p.name}</div><div class="hdept">${p.dept}</div></div><div style="text-align:right;"><div style="font-size:34px;font-weight:700;color:${sc};line-height:1;">${score}</div><div style="font-size:10px;color:rgba(255,255,255,0.55);">İSG Skorum</div></div></div><div class="rchips">${roleChips}</div></div>
+    ${alH}
+    <div class="card-pad"><div class="pbar-wrap"><div class="pbar-head"><span class="pbar-lbl">Zorunlu eğitimler (${tam}/${top})</span><span class="pbar-pct">%${pp}</span></div><div class="pbar-bg"><div class="pbar-fill" style="width:${pp}%;background:${bc2};"></div></div></div>${zorHtml}</div>
+    ${ilgHtml?`<div class="card">${ilgHtml}</div>`:''}
+    <div class="card-pad" style="margin-top:10px;"><div class="card-title">İSG Dokümanlarım</div>${docHtml}</div>`;
+}
+renderPer(PEOPLE.esra);
+</script>
+</body>
+</html>
